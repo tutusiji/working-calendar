@@ -129,6 +129,7 @@
 						v-for="(row, index) in teamList"
 						:key="index"
 					>
+						<img v-bind:src="row.avater" alt="">
 						{{ row.name }}
 					</div>
 				</div>
@@ -213,6 +214,7 @@ import ArchiveList from "../tempdata/archive.json";
 import ReportPanel from "../components/ReportPanel";
 import CreateArchive from "../components/CreateArchive";
 import AddArchiveItems from "../components/AddArchiveItems";
+import hkimg from "@/assets/hk.png";
 import "./main.less";
 
 export default {
@@ -315,22 +317,22 @@ export default {
 			],
 			teamList: [
 				{
-					avater: "@/assets/hk.png",
+					avater: hkimg,
 					name: "金城武001",
 					id: "jinchengwu001"
 				},
 				{
-					avater: "@/assets/hk.png",
+					avater: hkimg,
 					name: "金城武002",
 					id: "jinchengwu002"
 				},
 				{
-					avater: "@/assets/hk.png",
+					avater: hkimg,
 					name: "金城武003",
 					id: "jinchengwu003"
 				},
 				{
-					avater: "@/assets/hk.png",
+					avater: hkimg,
 					name: "金城武004",
 					id: "jinchengwu04"
 				}
