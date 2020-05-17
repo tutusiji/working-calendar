@@ -78,7 +78,7 @@
 					content="点我干啥？是不是对我有意思！！！"
 				>
 					<div class="avater" slot="reference">
-						<img src="@/assets/hk.jpg" />
+						<img src="@/assets/hk.png" />
 					</div>
 				</el-popover>
 			</div>
@@ -315,22 +315,22 @@ export default {
 			],
 			teamList: [
 				{
-					avater: "@/assets/hk.jpg",
+					avater: "@/assets/hk.png",
 					name: "金城武001",
 					id: "jinchengwu001"
 				},
 				{
-					avater: "@/assets/hk.jpg",
+					avater: "@/assets/hk.png",
 					name: "金城武002",
 					id: "jinchengwu002"
 				},
 				{
-					avater: "@/assets/hk.jpg",
+					avater: "@/assets/hk.png",
 					name: "金城武003",
 					id: "jinchengwu003"
 				},
 				{
-					avater: "@/assets/hk.jpg",
+					avater: "@/assets/hk.png",
 					name: "金城武004",
 					id: "jinchengwu04"
 				}
