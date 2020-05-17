@@ -1,23 +1,74 @@
 <template>
 	<div id="dateContainer">
 		<header class="header">
+			<div class="sidebtn" @click="sideOpenClick">
+				<svg focusable="false" viewBox="0 0 24 24">
+					<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+				</svg>
+			</div>
+			<div class="logobox">
+				<img
+					class="logo"
+					src="@/assets/logo.png"
+					alt="工作日历"
+					aria-hidden="true"
+					style="width:40px;height:40px"
+				/>
+				<span v-text="dnow" class="num"></span>
+				<span class="txt">工作日历</span>
+			</div>
+
 			<div class="datebar">
 				<span class="normalBtn todayBtn" @click="toToday">今天</span>
 				<div class="preMon normalBtn" @click="preMon">上个月</div>
 				<div class="thisMon">
-					<span v-text="ynow"></span>年 /
+					<span v-text="ynow"></span>年/
 					<span v-text="mnow + 1"></span>月
 				</div>
 				<div class="nextMon normalBtn" @click="nextMon">下个月</div>
 			</div>
-			<div class="control">
-				<div class="normalBtn addArchive" @click="addArchive">
-					<i class="el-icon-plus"></i> 创建项目
+			<div class="dataControl">
+				<div class="viewControl">
+					<el-radio-group v-model="radio1" size="medium">
+						<el-tooltip
+							content="月视图"
+							placement="left"
+							effect="light"
+						>
+							<el-radio-button label="我的工作"
+								><i class="el-icon-date"></i>
+								我的工作</el-radio-button
+							>
+						</el-tooltip>
+						<el-tooltip
+							content="月视图"
+							placement="bottom"
+							effect="light"
+						>
+							<el-radio-button label="项目归档"
+								><i class="el-icon-s-grid"></i>
+								项目归档</el-radio-button
+							>
+						</el-tooltip>
+						<el-tooltip
+							content="周视图"
+							placement="right"
+							effect="light"
+						>
+							<el-radio-button label="团队归档">
+								<i class="el-icon-notebook-2"></i> 团队归档
+							</el-radio-button>
+						</el-tooltip>
+					</el-radio-group>
+				</div>
+				<div class="normalBtn addArchive" @click="createArchive">
+					<i class="el-icon-plus"></i> 创建归档
 				</div>
 				<div class="normalBtn" @click="() => getWeekReport()">周报</div>
 				<div class="normalBtn" @click="() => getMonthReport()">
 					月报
 				</div>
+				<div class="normalBtn">年报</div>
 				<el-popover
 					placement="bottom"
 					title
@@ -32,49 +83,103 @@
 				</el-popover>
 			</div>
 		</header>
-
-		<div class="panel">
-			<div class="panelTitle">
-				<div class="isRed">星期日</div>
-				<div>星期一</div>
-				<div>星期二</div>
-				<div>星期三</div>
-				<div>星期四</div>
-				<div>星期五</div>
-				<div class="isRed">星期六</div>
-			</div>
-			<div class="panelContainer">
-				<div class="row" v-for="(row, index) in dateArray" :key="index">
-					<div
-						v-for="(day, index) in row"
-						@click="() => InputContent(day)"
-						:class="
-							day.dateStr === currentDayClass
-								? 'day current'
-								: 'day'
-						"
-						:key="day + row + index"
-					>
-						<span
-							v-if="dnow && mnow"
-							:class="
-								+day.dateStr === dnow &&
-								day.monthStr === mnow + 1
-									? 'sup today'
-									: 'sup'
-							"
-							>{{ day.dateStr }}</span
+		<div class="mainbox">
+			<div :class="sideOpen ? 'sidebar open' : 'sidebar'">
+				<div class="archive-wrap">
+					<div class="archive-header">
+						<i class="el-icon-s-data"></i> 归档总览
+					</div>
+					<div class="archive-content">
+						<el-tree
+							:data="data2"
+							show-checkbox
+							node-key="id"
+							:default-expanded-keys="[1, 2, 3, 4, 5]"
+							:default-checked-keys="[1, 2, 3, 4, 5]"
+							:props="defaultProps2"
 						>
-						<div class="list">
-							<div
-								class="item"
-								v-for="(items, index) in day.msgStr"
-								:key="index"
-								@click="() => changeItem(items, day)"
+						</el-tree>
+					</div>
+					<el-divider></el-divider>
+					<div class="thisData">
+						<dl>
+							<dt><i class="el-icon-s-unfold"></i> 当前表格数据为：</dt>
+							<dd>
+								<ul>
+									<li>深圳项目</li>
+									<li>i深圳运营后台</li>
+									<li>i深圳app端</li>
+									<li>i深圳微信小程序</li>
+									<li>i深圳支付宝小程序</li>
+									<li>i深圳开放平台</li>
+									<li>i深圳口罩预约项目</li>
+								</ul>
+							</dd>
+						</dl>
+					</div>
+				</div>
+			</div>
+			<div class="team-list">
+				<div class="team-title">
+					参与人
+				</div>
+				<div class="team-content">
+					<div
+						class="row"
+						v-for="(row, index) in teamList"
+						:key="index"
+					>
+						{{ row.name }}
+					</div>
+				</div>
+			</div>
+			<div class="panel">
+				<div class="panelTitle">
+					<div>星期一</div>
+					<div>星期二</div>
+					<div>星期三</div>
+					<div>星期四</div>
+					<div>星期五</div>
+					<div class="isRed">星期六</div>
+					<div class="isRed">星期日</div>
+				</div>
+				<div class="panelContainer">
+					<div
+						class="row"
+						v-for="(row, index) in dateArray"
+						:key="index"
+					>
+						<div
+							v-for="(day, index) in row"
+							@click="() => addArchiveItem(day)"
+							:class="
+								day.dateStr === currentDayClass
+									? 'day current'
+									: 'day'
+							"
+							:key="day + row + index"
+						>
+							<span
+								v-if="dnow && mnow"
+								:class="
+									+day.dateStr === dnow &&
+									day.monthStr === mnow + 1
+										? 'sup today'
+										: 'sup'
+								"
+								>{{ day.dateStr }}</span
 							>
-								<span v-if="items && items.name">
-									{{ items.name }}
-								</span>
+							<div class="list">
+								<div
+									class="item"
+									v-for="(items, index) in day.msgStr"
+									:key="index"
+									@click="() => changeItem(items, day)"
+								>
+									<span v-if="items && items.name">
+										{{ items.name }}
+									</span>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -82,76 +187,32 @@
 			</div>
 		</div>
 
-		<el-dialog
-			title="录入事项"
-			:visible.sync="dialogFormVisible"
-			:modal="false"
-			:show-close="false"
-			width="30%"
-		>
-			<div slot="title" class="dialog-header">
-				<div class="tit">
-					{{ editStatus ? "编辑事项" : "事项详情" }}
-				</div>
-				<div class="handle">
-					<el-tooltip content="编辑" placement="top" effect="light">
-						<i
-							v-if="!editStatus"
-							class="el-icon-edit"
-							@click="editStatus = true"
-						></i>
-					</el-tooltip>
-					<el-tooltip content="删除" placement="top" effect="light">
-						<i class="el-icon-delete"></i>
-					</el-tooltip>
-					<el-tooltip content="关闭" placement="top" effect="light">
-						<i class="el-icon-close" @click="confirmItem"></i>
-					</el-tooltip>
-				</div>
-			</div>
-			<el-form :model="form">
-				<el-form-item label="事项名称" :label-width="formLabelWidth">
-					<el-input
-						v-if="editStatus"
-						v-model="form.name"
-						autocomplete="off"
-						autofocus="true"
-					></el-input>
-					<div v-else>{{ form.name }}</div>
-				</el-form-item>
-				<el-form-item label="事项归档" :label-width="formLabelWidth">
-					<el-select
-						v-if="editStatus"
-						v-model="form.archive"
-						placeholder="请选择关联项目"
-					>
-						<el-option
-							v-for="(item, index) in archiveList"
-							:key="index"
-							:label="item.archiveName"
-							:value="item.archiveName"
-						></el-option>
-					</el-select>
-					<div v-else>{{ form.archive }}</div>
-				</el-form-item>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="dialogFormVisible = false">取 消</el-button>
-				<el-button type="primary" @click="confirmItem">确 定</el-button>
-			</div>
-		</el-dialog>
+		<!-- 报告面板 -->
 		<ReportPanel
 			:reportPanelShow="reportPanelShow"
 			:reportPanelType="reportPanelType"
 			@activePanel="reportPanelShow = $event"
 		></ReportPanel>
+		<!-- 创建归档 -->
+		<CreateArchive
+			:createArchiveShow="createArchiveShow"
+			@activePanel="createArchiveShow = $event"
+		></CreateArchive>
+		<!-- 录入事项 -->
+		<AddArchiveItems
+			:addArchiveItemShow="addArchiveItemShow"
+			:editStatus = 'editStatus'
+			@activePanel="addArchiveItemShow = $event"
+		></AddArchiveItems>
 	</div>
 </template>
 
 <script>
-import JsonHtml from "./data.json";
-import ArchiveList from "./archive.json";
+import JsonHtml from "../tempdata/data.json";
+import ArchiveList from "../tempdata/archive.json";
 import ReportPanel from "../components/ReportPanel";
+import CreateArchive from "../components/CreateArchive";
+import AddArchiveItems from "../components/AddArchiveItems";
 import "./main.less";
 
 export default {
@@ -188,11 +249,99 @@ export default {
 			},
 			formLabelWidth: "75px",
 			reportPanelShow: false,
-			reportPanelType: ""
+			reportPanelType: "",
+			createArchiveShow: false,
+			addArchiveItemShow: false,
+			sideOpen: true,
+			value1: false,
+			value2: false,
+			defaultProps: {
+				children: "children",
+				label: "label"
+			},
+			defaultProps2: {
+				children: "children",
+				label: "label"
+			},
+			data2: [
+				{
+					id: 1,
+					label: "一级 1",
+					children: [
+						{
+							id: 4,
+							label: "二级 1-1",
+							children: [
+								{
+									id: 9,
+									label: "三级 1-1-1"
+								},
+								{
+									id: 10,
+									label: "三级 1-1-2"
+								}
+							]
+						}
+					]
+				},
+				{
+					id: 2,
+					label: "一级 2",
+					children: [
+						{
+							id: 5,
+							label: "二级 2-1"
+						},
+						{
+							id: 6,
+							label: "二级 2-2"
+						}
+					]
+				},
+				{
+					id: 3,
+					label: "一级 3",
+					children: [
+						{
+							id: 7,
+							label: "二级 3-1"
+						},
+						{
+							id: 8,
+							label: "二级 3-2"
+						}
+					]
+				}
+			],
+			teamList: [
+				{
+					avater: "@/assets/hk.jpg",
+					name: "金城武001",
+					id: "jinchengwu001"
+				},
+				{
+					avater: "@/assets/hk.jpg",
+					name: "金城武002",
+					id: "jinchengwu002"
+				},
+				{
+					avater: "@/assets/hk.jpg",
+					name: "金城武003",
+					id: "jinchengwu003"
+				},
+				{
+					avater: "@/assets/hk.jpg",
+					name: "金城武004",
+					id: "jinchengwu04"
+				}
+			],
+			radio1: "我的工作"
 		};
 	},
 	components: {
-		ReportPanel
+		ReportPanel,
+		CreateArchive,
+		AddArchiveItems
 	},
 	mounted() {
 		//画出当前的月份的天数对应的表格
@@ -239,7 +388,7 @@ export default {
 				weekDateStr = "",
 				dateStr = "";
 			// isRed = "",
-			// hasMsg = "";
+			// hasMsg = ""
 			let arr = [];
 			let msgStr = [];
 
@@ -248,7 +397,7 @@ export default {
 				weekStr = i;
 				for (var k = 0; k < 7; k++) {
 					arr[i][k] = [];
-					idx = i * 7 + k;
+					idx = i * 7 + k + 1;
 					weekDateStr = k;
 					dateStr = idx - _this.firstnow + 1;
 					// 判断date是否超过一个月的边界值
@@ -285,8 +434,8 @@ export default {
 			console.log("---", arr);
 			this.dateArray = arr;
 		},
-		InputContent(e) {
-			this.dialogFormVisible = true;
+		addArchiveItem(e) {
+			this.addArchiveItemShow = true;
 			this.editStatus = true;
 			console.log("currentDay", e);
 			this.currentDay = e;
@@ -299,7 +448,7 @@ export default {
 			event.stopPropagation(); // 阻止事件冒泡
 			// event.preventDefault()
 			console.log("items", items, day);
-			this.dialogFormVisible = true;
+			this.addArchiveItemShow = true;
 			this.editStatus = false;
 			this.currentDay = day;
 			this.currentItem = items;
@@ -309,11 +458,11 @@ export default {
 		confirmItem() {
 			this.currentDayClass = null;
 			this.dialogFormVisible = false;
-			// console.log(this.form); // name  archive
+			// console.log(this.form) // name  archive
 			// dateStr,msgStr
 			const { weekStr, weekDateStr } = this.currentDay;
 			const { name, archive } = this.form;
-			// console.log(this.editStatus);
+			// console.log(this.editStatus)
 			if (this.editStatus && this.currentItem.id && name && archive) {
 				const index = this.dateArray[weekStr][weekDateStr][
 					"msgStr"
@@ -389,10 +538,19 @@ export default {
 			this.reportPanelShow = true;
 			this.reportPanelType = "month";
 		},
-		addArchive() {},
+		createArchive() {
+			this.createArchiveShow = true;
+		},
 		activeReportPanel(data) {
 			console.log(data);
 			this.reportPanelShow = data;
+		},
+		sideOpenClick() {
+			if (this.sideOpen) {
+				this.sideOpen = false;
+			} else {
+				this.sideOpen = true;
+			}
 		}
 	}
 };

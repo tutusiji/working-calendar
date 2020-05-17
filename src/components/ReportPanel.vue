@@ -6,7 +6,7 @@
       :close-on-click-modal="false"
       :modal="false"
       :show-close="false"
-      width="50%"
+      width="40%"
     >
       <div slot="title" class="dialog-header">
         <div class="tit">{{ this.reportPanelType === "week" ? "周报" : "月报" }}</div>
