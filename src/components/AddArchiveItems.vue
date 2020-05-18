@@ -32,9 +32,10 @@
 				<el-form-item label="事项名称" :label-width="formLabelWidth">
 					<el-input
 						v-if="this.editStatus"
-						v-model="form.name"
+						:value="this.name"
 						autocomplete="off"
 						autofocus="true"
+						@input="this.updateMatterName"
 					></el-input>
 					<div v-else>{{ form.name }}</div>
 				</el-form-item>
@@ -63,7 +64,7 @@
 </template>
 
 <script>
-import ArchiveList from "@/tempdata/archive.json";
+// import ArchiveList from "@/tempdata/archive.json";
 
 export default {
 	name: "CreateArchive",
@@ -72,9 +73,9 @@ export default {
 			formLabelWidth: "100px",
 			dialogFormVisible: false,
 			status: false,
-			archiveList: [],
+			// archiveList: [],
 			form: {
-				name: "",
+				name: this.name,
 				archive: "",
 				date1: "",
 				date2: "",
@@ -85,19 +86,23 @@ export default {
 			},
 		};
 	},
-	props: ["addArchiveItemShow","editStatus"],
+	props: ["addArchiveItemShow","editStatus", 'name'],
 	created() {
-		console.log("-------1",this.editStatus);
-		this.archiveList = ArchiveList;
+		console.log("-------1",this.editStatus, this.name);
+		// this.archiveList = ArchiveList;
 	},
-	mounted() {
-		console.log("-------", this.editStatus);
-		this.archiveList = ArchiveList;
-		
+	computed: {
+		archiveList() {
+			return this.$store.state.archives
+		}
 	},
+	mounted() {},
 	methods: {
 		closePanel() {
 			this.$emit("activePanel", false);
+		},
+		updateMatterName(value) {
+			this.$store.commit("setCurrentMatter", { ...this.$store.state.currentMatter, name: value })
 		},
 		confirmItem() {}
 	}

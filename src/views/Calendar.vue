@@ -203,14 +203,15 @@
 		<AddArchiveItems
 			:addArchiveItemShow="addArchiveItemShow"
 			:editStatus = 'editStatus'
+			:name = 'this.currentMatter.name'
 			@activePanel="addArchiveItemShow = $event"
 		></AddArchiveItems>
 	</div>
 </template>
 
 <script>
-import JsonHtml from "../tempdata/data.json";
-import ArchiveList from "../tempdata/archive.json";
+// import JsonHtml from "../tempdata/data.json";
+// import ArchiveList from "../tempdata/archive.json";
 import ReportPanel from "../components/ReportPanel";
 import CreateArchive from "../components/CreateArchive";
 import AddArchiveItems from "../components/AddArchiveItems";
@@ -345,15 +346,26 @@ export default {
 		CreateArchive,
 		AddArchiveItems
 	},
-	mounted() {
+	async mounted() {
+		await this.$store.dispatch('fetchMatters')
+		await this.$store.dispatch('fetchAchives')
 		//画出当前的月份的天数对应的表格
 		this.getDaysInfo();
-		this.archiveList = ArchiveList;
+		this.archiveList = this.$store.state.archives;
 		console.log("mnow", this.mnow, typeof this.mnow + 1 + "月");
 		// InputContent() {
 		// 	console.log(111)
 		// }
 		//进行数据的获取，显示到对应的位置
+	},
+	computed: {
+		matters() {
+			return this.$store.state.matters
+		},
+		currentMatter() {
+			console.log(this.$store.state.currentMatter, 'this.$store.state.currentMatter')
+			return this.$store.state.currentMatter
+		}
 	},
 	watch: {
 		mnow: function(newVal, oldVal) {
@@ -444,18 +456,21 @@ export default {
 			if (this.currentDay.dateStr) {
 				this.currentDayClass = this.currentDay.dateStr;
 			}
-			this.form = {};
+			this.$store.commit('setCurrentMatter', e)
+			// this.form = {};
 		},
 		changeItem(items, day) {
 			event.stopPropagation(); // 阻止事件冒泡
 			// event.preventDefault()
 			console.log("items", items, day);
 			this.addArchiveItemShow = true;
-			this.editStatus = false;
+			this.editStatus = true;
 			this.currentDay = day;
 			this.currentItem = items;
 			this.form.name = items.name;
 			this.form.archive = items.archive;
+			this.$store.commit('setCurrentDay', day)
+			this.$store.commit('setCurrentMatter', items)
 		},
 		confirmItem() {
 			this.currentDayClass = null;
@@ -530,7 +545,8 @@ export default {
 		},
 		//通过接口返回的是我们当前的月份对应在日历中需要处理的事项
 		showMsg() {
-			this.drawTable(JsonHtml);
+			console.log(this.matters, "matters")
+			this.drawTable(this.matters)
 		},
 		getWeekReport() {
 			this.reportPanelShow = true;
