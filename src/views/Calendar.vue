@@ -215,6 +215,7 @@
 import ReportPanel from "../components/ReportPanel";
 import CreateArchive from "../components/CreateArchive";
 import AddArchiveItems from "../components/AddArchiveItems";
+import { getDefaultMatterConfig } from '../utils'
 import hkimg from "@/assets/hk.png";
 import "./main.less";
 
@@ -360,10 +361,10 @@ export default {
 	},
 	computed: {
 		matters() {
+			console.log('matters ....', this.$store.state.matters)
 			return this.$store.state.matters
 		},
 		currentMatter() {
-			console.log(this.$store.state.currentMatter, 'this.$store.state.currentMatter')
 			return this.$store.state.currentMatter
 		}
 	},
@@ -377,6 +378,9 @@ export default {
 			if (!this.dialogFormVisible) {
 				this.currentDayClass = null;
 			}
+		},
+		matters: function() {
+			this.showMsg()
 		}
 	},
 	methods: {
@@ -451,12 +455,12 @@ export default {
 		addArchiveItem(e) {
 			this.addArchiveItemShow = true;
 			this.editStatus = true;
-			console.log("currentDay", e);
-			this.currentDay = e;
+			// this.currentDay = e;
 			if (this.currentDay.dateStr) {
 				this.currentDayClass = this.currentDay.dateStr;
 			}
-			this.$store.commit('setCurrentMatter', e)
+			this.$store.commit('setCurrentDay', e)
+			this.$store.commit('addMatter', getDefaultMatterConfig())
 			// this.form = {};
 		},
 		changeItem(items, day) {
@@ -545,7 +549,6 @@ export default {
 		},
 		//通过接口返回的是我们当前的月份对应在日历中需要处理的事项
 		showMsg() {
-			console.log(this.matters, "matters")
 			this.drawTable(this.matters)
 		},
 		getWeekReport() {

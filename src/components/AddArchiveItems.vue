@@ -88,8 +88,7 @@ export default {
 	},
 	props: ["addArchiveItemShow","editStatus", 'name'],
 	created() {
-		console.log("-------1",this.editStatus, this.name);
-		// this.archiveList = ArchiveList;
+		
 	},
 	computed: {
 		archiveList() {
@@ -104,7 +103,11 @@ export default {
 		updateMatterName(value) {
 			this.$store.commit("setCurrentMatter", { ...this.$store.state.currentMatter, name: value })
 		},
-		confirmItem() {}
+		confirmItem() {
+			this.$store.commit("updateMatters", this.$store.state.currentMatter)
+			this.$store.commit("setCurrentMatter", { })
+			this.closePanel()
+		}
 	}
 };
 </script>
