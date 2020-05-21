@@ -2,6 +2,8 @@
 
 用vue + nodejs 结合日历思路搭建的一套工作日历系统。
 
+站点：works.souxy.com
+
 ## Project setup
 ```
 npm install
