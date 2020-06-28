@@ -1,223 +1,46 @@
 <template>
-	<div id="dateContainer">
-		<header class="header">
-			<div class="sidebtn" @click="sideOpenClick">
-				<svg focusable="false" viewBox="0 0 24 24">
-					<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
-				</svg>
-			</div>
-			<div class="logobox">
-				<img
-					class="logo"
-					src="@/assets/logo.png"
-					alt="工作日历"
-					aria-hidden="true"
-					style="width:40px;height:40px"
-				/>
-				<span v-text="dnow" class="num"></span>
-				<span class="txt">工作日历</span>
-			</div>
-
-			<div class="datebar">
-				<span class="normalBtn todayBtn" @click="toToday">今天</span>
-				<div class="preMon normalBtn" @click="preMon">上个月</div>
-				<div class="thisMon">
-					<span v-text="ynow"></span>年/
-					<span v-text="mnow + 1"></span>月
-				</div>
-				<div class="nextMon normalBtn" @click="nextMon">下个月</div>
-			</div>
-			<div class="dataControl">
-				<div class="viewControl">
-					<el-radio-group v-model="radio1" size="medium">
-						<el-tooltip
-							content="月视图"
-							placement="left"
-							effect="light"
-						>
-							<el-radio-button label="我的工作"
-								><i class="el-icon-date"></i>
-								我的工作</el-radio-button
-							>
-						</el-tooltip>
-						<el-tooltip
-							content="月视图"
-							placement="bottom"
-							effect="light"
-						>
-							<el-radio-button label="项目归档"
-								><i class="el-icon-s-grid"></i>
-								项目归档</el-radio-button
-							>
-						</el-tooltip>
-						<el-tooltip
-							content="周视图"
-							placement="right"
-							effect="light"
-						>
-							<el-radio-button label="团队归档">
-								<i class="el-icon-notebook-2"></i> 团队归档
-							</el-radio-button>
-						</el-tooltip>
-					</el-radio-group>
-				</div>
-				<div class="normalBtn addArchive" @click="createArchive">
-					<i class="el-icon-plus"></i> 创建归档
-				</div>
-				<div class="normalBtn" @click="() => getWeekReport()">周报</div>
-				<div class="normalBtn" @click="() => getMonthReport()">
-					月报
-				</div>
-				<div class="normalBtn">年报</div>
-				<el-popover
-					placement="bottom"
-					title
-					width="200"
-					effect="light"
-					trigger="click"
-					content="点我干啥？是不是对我有意思！！！"
+<div class="panelContainer">
+	<div class="row" v-for="(row, index) in dateArray" :key="index">
+		<div
+			v-for="(day, index) in row"
+			@click="() => addArchiveItem(day)"
+			:class="day.dateStr === currentDayClass ? 'day current' : 'day'"
+			:key="day + row + index"
+		>
+			<span
+				v-if="dnow && mnow"
+				:class="
+					+day.dateStr === dnow && day.monthStr === mnow + 1
+						? 'sup today'
+						: 'sup'
+				"
+				>{{ day.dateStr }}</span
+			>
+			<div class="list">
+				<div
+					class="item"
+					v-for="(items, index) in day.msgStr"
+					:key="index"
+					@click="() => changeItem(items, day)"
 				>
-					<div class="avater" slot="reference">
-						<img src="@/assets/hk.png" />
-					</div>
-				</el-popover>
-			</div>
-		</header>
-		<div class="mainbox">
-			<div :class="sideOpen ? 'sidebar open' : 'sidebar'">
-				<div class="archive-wrap">
-					<div class="archive-header">
-						<i class="el-icon-s-data"></i> 归档总览
-					</div>
-					<div class="archive-content">
-						<el-tree
-							:data="data2"
-							show-checkbox
-							node-key="id"
-							:default-expanded-keys="[1, 2, 3, 4, 5]"
-							:default-checked-keys="[1, 2, 3, 4, 5]"
-							:props="defaultProps2"
-						>
-						</el-tree>
-					</div>
-					<el-divider></el-divider>
-					<div class="thisData">
-						<dl>
-							<dt><i class="el-icon-s-unfold"></i> 当前表格数据为：</dt>
-							<dd>
-								<ul>
-									<li>深圳项目</li>
-									<li>i深圳运营后台</li>
-									<li>i深圳app端</li>
-									<li>i深圳微信小程序</li>
-									<li>i深圳支付宝小程序</li>
-									<li>i深圳开放平台</li>
-									<li>i深圳口罩预约项目</li>
-								</ul>
-							</dd>
-						</dl>
-					</div>
-				</div>
-			</div>
-			<div class="team-list">
-				<div class="team-title">
-					参与人
-				</div>
-				<div class="team-content">
-					<div
-						class="row"
-						v-for="(row, index) in teamList"
-						:key="index"
-					>
-						<img v-bind:src="row.avater" alt="">
-						{{ row.name }}
-					</div>
-				</div>
-			</div>
-			<div class="panel">
-				<div class="panelTitle">
-					<div>星期一</div>
-					<div>星期二</div>
-					<div>星期三</div>
-					<div>星期四</div>
-					<div>星期五</div>
-					<div class="isRed">星期六</div>
-					<div class="isRed">星期日</div>
-				</div>
-				<div class="panelContainer">
-					<div
-						class="row"
-						v-for="(row, index) in dateArray"
-						:key="index"
-					>
-						<div
-							v-for="(day, index) in row"
-							@click="() => addArchiveItem(day)"
-							:class="
-								day.dateStr === currentDayClass
-									? 'day current'
-									: 'day'
-							"
-							:key="day + row + index"
-						>
-							<span
-								v-if="dnow && mnow"
-								:class="
-									+day.dateStr === dnow &&
-									day.monthStr === mnow + 1
-										? 'sup today'
-										: 'sup'
-								"
-								>{{ day.dateStr }}</span
-							>
-							<div class="list">
-								<div
-									class="item"
-									v-for="(items, index) in day.msgStr"
-									:key="index"
-									@click="() => changeItem(items, day)"
-								>
-									<span v-if="items && items.name">
-										{{ items.name }}
-									</span>
-								</div>
-							</div>
-						</div>
-					</div>
+					<span v-if="items && items.name">
+						{{ items.name }}
+					</span>
 				</div>
 			</div>
 		</div>
-
-		<!-- 报告面板 -->
-		<ReportPanel
-			:reportPanelShow="reportPanelShow"
-			:reportPanelType="reportPanelType"
-			@activePanel="reportPanelShow = $event"
-		></ReportPanel>
-		<!-- 创建归档 -->
-		<CreateArchive
-			:createArchiveShow="createArchiveShow"
-			@activePanel="createArchiveShow = $event"
-		></CreateArchive>
-		<!-- 录入事项 -->
-		<AddArchiveItems
-			:addArchiveItemShow="addArchiveItemShow"
-			:editStatus = 'editStatus'
-			:name = 'this.currentMatter.name'
-			@activePanel="addArchiveItemShow = $event"
-		></AddArchiveItems>
+	</div>
 	</div>
 </template>
 
 <script>
-// import JsonHtml from "../tempdata/data.json";
-// import ArchiveList from "../tempdata/archive.json";
-import ReportPanel from "../components/ReportPanel";
-import CreateArchive from "../components/CreateArchive";
-import AddArchiveItems from "../components/AddArchiveItems";
-import { getDefaultMatterConfig } from '../utils'
+
+// import ReportPanel from "./ReportPanel";
+// import CreateArchive from "./CreateArchive";
+// import AddArchiveItems from "./AddArchiveItems";
+import { getDefaultMatterConfig } from "@/utils";
 import hkimg from "@/assets/hk.png";
-import "./main.less";
+import "../views/main.less";
 
 export default {
 	data() {
@@ -343,13 +166,13 @@ export default {
 		};
 	},
 	components: {
-		ReportPanel,
-		CreateArchive,
-		AddArchiveItems
+		// ReportPanel,
+		// CreateArchive,
+		// AddArchiveItems
 	},
 	async mounted() {
-		await this.$store.dispatch('fetchMatters')
-		await this.$store.dispatch('fetchAchives')
+		await this.$store.dispatch("fetchMatters");
+		await this.$store.dispatch("fetchAchives");
 		//画出当前的月份的天数对应的表格
 		this.getDaysInfo();
 		this.archiveList = this.$store.state.archives;
@@ -361,11 +184,11 @@ export default {
 	},
 	computed: {
 		matters() {
-			console.log('matters ....', this.$store.state.matters)
-			return this.$store.state.matters
+			console.log("matters ....", this.$store.state.matters);
+			return this.$store.state.matters;
 		},
 		currentMatter() {
-			return this.$store.state.currentMatter
+			return this.$store.state.currentMatter;
 		}
 	},
 	watch: {
@@ -380,7 +203,7 @@ export default {
 			}
 		},
 		matters: function() {
-			this.showMsg()
+			this.showMsg();
 		}
 	},
 	methods: {
@@ -459,8 +282,8 @@ export default {
 			if (this.currentDay.dateStr) {
 				this.currentDayClass = this.currentDay.dateStr;
 			}
-			this.$store.commit('setCurrentDay', e)
-			this.$store.commit('addMatter', getDefaultMatterConfig())
+			this.$store.commit("setCurrentDay", e);
+			this.$store.commit("addMatter", getDefaultMatterConfig());
 			// this.form = {};
 		},
 		changeItem(items, day) {
@@ -473,8 +296,8 @@ export default {
 			this.currentItem = items;
 			this.form.name = items.name;
 			this.form.archive = items.archive;
-			this.$store.commit('setCurrentDay', day)
-			this.$store.commit('setCurrentMatter', items)
+			this.$store.commit("setCurrentDay", day);
+			this.$store.commit("setCurrentMatter", items);
 		},
 		confirmItem() {
 			this.currentDayClass = null;
@@ -549,7 +372,7 @@ export default {
 		},
 		//通过接口返回的是我们当前的月份对应在日历中需要处理的事项
 		showMsg() {
-			this.drawTable(this.matters)
+			this.drawTable(this.matters);
 		},
 		getWeekReport() {
 			this.reportPanelShow = true;

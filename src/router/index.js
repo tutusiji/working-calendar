@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Calendar from '../views/Calendar.vue'
+import WorkSpace from '../views/WorkSpace.vue'
 
 Vue.use(VueRouter)
 
 const routes = [{
 		path: '/',
-		name: 'Calendar',
-		component: Calendar,
+		name: 'WorkSpace',
+		component: WorkSpace,
 		meta: {
 			title: '工作日历'
 		}
