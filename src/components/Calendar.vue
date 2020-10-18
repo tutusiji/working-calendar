@@ -1,44 +1,44 @@
 <template>
-<div class="panelContainer">
-	<div class="row" v-for="(row, index) in dateArray" :key="index">
-		<div
-			v-for="(day, index) in row"
-			@click="() => addArchiveItem(day)"
-			:class="day.dateStr === currentDayClass ? 'day current' : 'day'"
-			:key="day + row + index"
-		>
-			<span
-				v-if="dnow && mnow"
-				:class="
-					+day.dateStr === dnow && day.monthStr === mnow + 1
-						? 'sup today'
-						: 'sup'
-				"
-				>{{ day.dateStr }}</span
+	<div class="panelContainer">
+		<div class="row" v-for="(row, index) in dateArray" :key="index">
+			<div
+				v-for="(day, index) in row"
+				@click="() => addArchiveItem(day)"
+				:class="day.dateStr === currentDayClass ? 'day current' : 'day'"
+				:key="day + row + index"
 			>
-			<div class="list">
-				<div
-					class="item"
-					v-for="(items, index) in day.msgStr"
-					:key="index"
-					@click="() => changeItem(items, day)"
+				<span
+					v-if="dnow && mnow"
+					:class="
+						+day.dateStr === dnow && day.monthStr === mnow + 1
+							? 'sup today'
+							: 'sup'
+					"
+					>{{ day.dateStr }}</span
 				>
-					<span v-if="items && items.name">
-						{{ items.name }}
-					</span>
+				<div class="list">
+					<div
+						class="item"
+						v-for="(items, index) in day.msgStr"
+						:key="index"
+						@click="() => changeItem(items, day)"
+					>
+						<span v-if="items && items.name">
+							{{ items.name }}
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	</div>
 </template>
 
 <script>
-
 // import ReportPanel from "./ReportPanel";
 // import CreateArchive from "./CreateArchive";
 // import AddArchiveItems from "./AddArchiveItems";
 import { getDefaultMatterConfig } from "@/utils";
+import { getUserInfo } from '../service/api'
 import hkimg from "@/assets/hk.png";
 import "../views/main.less";
 
@@ -78,7 +78,6 @@ export default {
 			reportPanelShow: false,
 			reportPanelType: "",
 			createArchiveShow: false,
-			addArchiveItemShow: false,
 			sideOpen: true,
 			value1: false,
 			value2: false,
@@ -91,54 +90,6 @@ export default {
 				label: "label"
 			},
 			data2: [
-				{
-					id: 1,
-					label: "一级 1",
-					children: [
-						{
-							id: 4,
-							label: "二级 1-1",
-							children: [
-								{
-									id: 9,
-									label: "三级 1-1-1"
-								},
-								{
-									id: 10,
-									label: "三级 1-1-2"
-								}
-							]
-						}
-					]
-				},
-				{
-					id: 2,
-					label: "一级 2",
-					children: [
-						{
-							id: 5,
-							label: "二级 2-1"
-						},
-						{
-							id: 6,
-							label: "二级 2-2"
-						}
-					]
-				},
-				{
-					id: 3,
-					label: "一级 3",
-					children: [
-						{
-							id: 7,
-							label: "二级 3-1"
-						},
-						{
-							id: 8,
-							label: "二级 3-2"
-						}
-					]
-				}
 			],
 			teamList: [
 				{
@@ -171,6 +122,8 @@ export default {
 		// AddArchiveItems
 	},
 	async mounted() {
+		this.getUserInfo()
+		
 		await this.$store.dispatch("fetchMatters");
 		await this.$store.dispatch("fetchAchives");
 		//画出当前的月份的天数对应的表格
@@ -186,9 +139,6 @@ export default {
 		matters() {
 			console.log("matters ....", this.$store.state.matters);
 			return this.$store.state.matters;
-		},
-		currentMatter() {
-			return this.$store.state.currentMatter;
 		}
 	},
 	watch: {
@@ -207,6 +157,14 @@ export default {
 		}
 	},
 	methods: {
+		getUserInfo(){
+			getUserInfo()
+			// this.$notify({
+            //     title: '成功',
+            //     message: '这是一条成功的提示消息',
+            //     // type: 'success'
+            //   });
+		},
 		getDaysInfo() {
 			var _this = this;
 			this.sureDate(_this);
@@ -220,7 +178,59 @@ export default {
 				? 1
 				: 0;
 		},
+		
+		// 点击面板
+		addArchiveItem(e) {
+			this.$store.commit("setArchivesItem", { show: true, edit: true });
+			// this.currentDay = e;
+			if (this.currentDay.dateStr) {
+				this.currentDayClass = this.currentDay.dateStr;
+			}
+			this.$store.commit("setCurrentDay", e);
+			this.$store.commit("addMatter", getDefaultMatterConfig());
+			// this.form = {};
+		},
+		// 点击面板 里面的 单条
+		changeItem(items, day) {
+			event.stopPropagation(); // 阻止事件冒泡
+			// event.preventDefault()
+			console.log("items", items, day);
+			this.editStatus = true;
+			this.currentDay = day;
+			this.currentItem = items;
+			this.form.name = items.name;
+			this.form.archive = items.archive;
+			this.$store.commit("setCurrentDay", day);
+			this.$store.commit("setCurrentMatter", items);
+		},
 		//下面的是画表格的方法，这个方法会根据数据画出我们需要的表格
+		confirmItem() {
+			this.currentDayClass = null;
+			this.dialogFormVisible = false;
+			// console.log(this.form) // name  archive
+			// dateStr,msgStr
+			const { weekStr, weekDateStr } = this.currentDay;
+			const { name, archive } = this.form;
+			// console.log(this.editStatus)
+			if (this.editStatus && this.currentItem.id && name && archive) {
+				const index = this.dateArray[weekStr][weekDateStr][
+					"msgStr"
+				].findIndex(item => item.id === this.currentItem.id);
+				this.dateArray[weekStr][weekDateStr]["msgStr"][index] = {
+					id: this.currentItem.id,
+					name,
+					archive
+				};
+			} else if (this.editStatus && name && archive) {
+				this.dateArray[weekStr][weekDateStr]["msgStr"].push({
+					id: Math.floor(Math.random() * 10000),
+					name,
+					archive
+				});
+			} else {
+				console.log("没有更新");
+			}
+		},
 		drawTable(jsonHtml) {
 			let _this = this;
 			var idx = "",
@@ -272,74 +282,8 @@ export default {
 					}
 				}
 			}
-			console.log("---", arr);
+			// console.log("---", arr);
 			this.dateArray = arr;
-		},
-		addArchiveItem(e) {
-			this.addArchiveItemShow = true;
-			this.editStatus = true;
-			// this.currentDay = e;
-			if (this.currentDay.dateStr) {
-				this.currentDayClass = this.currentDay.dateStr;
-			}
-			this.$store.commit("setCurrentDay", e);
-			this.$store.commit("addMatter", getDefaultMatterConfig());
-			// this.form = {};
-		},
-		changeItem(items, day) {
-			event.stopPropagation(); // 阻止事件冒泡
-			// event.preventDefault()
-			console.log("items", items, day);
-			this.addArchiveItemShow = true;
-			this.editStatus = true;
-			this.currentDay = day;
-			this.currentItem = items;
-			this.form.name = items.name;
-			this.form.archive = items.archive;
-			this.$store.commit("setCurrentDay", day);
-			this.$store.commit("setCurrentMatter", items);
-		},
-		confirmItem() {
-			this.currentDayClass = null;
-			this.dialogFormVisible = false;
-			// console.log(this.form) // name  archive
-			// dateStr,msgStr
-			const { weekStr, weekDateStr } = this.currentDay;
-			const { name, archive } = this.form;
-			// console.log(this.editStatus)
-			if (this.editStatus && this.currentItem.id && name && archive) {
-				const index = this.dateArray[weekStr][weekDateStr][
-					"msgStr"
-				].findIndex(item => item.id === this.currentItem.id);
-				this.dateArray[weekStr][weekDateStr]["msgStr"][index] = {
-					id: this.currentItem.id,
-					name,
-					archive
-				};
-			} else if (this.editStatus && name && archive) {
-				this.dateArray[weekStr][weekDateStr]["msgStr"].push({
-					id: Math.floor(Math.random() * 10000),
-					name,
-					archive
-				});
-			} else {
-				console.log("没有更新");
-			}
-		},
-		toToday() {
-			var _this = this;
-			this.mnow = this.newDate.getMonth();
-			this.sureDate(_this, "now");
-		},
-		preMon() {
-			var _this = this;
-			this.mnow--;
-			this.sureDate(_this, "up");
-		},
-		nextMon() {
-			var _this = this;
-			this.mnow++;
-			this.sureDate(_this, "next");
 		},
 		//两个参数代表的含义分别是this对象以及判断当前的操作是不是在进行月份的修改
 		sureDate(_this, other) {
@@ -373,28 +317,6 @@ export default {
 		//通过接口返回的是我们当前的月份对应在日历中需要处理的事项
 		showMsg() {
 			this.drawTable(this.matters);
-		},
-		getWeekReport() {
-			this.reportPanelShow = true;
-			this.reportPanelType = "week";
-		},
-		getMonthReport() {
-			this.reportPanelShow = true;
-			this.reportPanelType = "month";
-		},
-		createArchive() {
-			this.createArchiveShow = true;
-		},
-		activeReportPanel(data) {
-			console.log(data);
-			this.reportPanelShow = data;
-		},
-		sideOpenClick() {
-			if (this.sideOpen) {
-				this.sideOpen = false;
-			} else {
-				this.sideOpen = true;
-			}
 		}
 	}
 };

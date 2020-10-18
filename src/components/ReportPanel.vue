@@ -36,7 +36,7 @@ export default {
   props: ["reportPanelShow", "reportPanelType"],
   created() {},
   mounted() {
-    console.log("-------", this.reportPanelShow, this.reportPanelType);
+    // console.log("-------", this.reportPanelShow, this.reportPanelType);
   },
   methods: {
     closePanel() {

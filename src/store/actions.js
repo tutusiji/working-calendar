@@ -11,7 +11,7 @@ export default {
         const result = await new Promise((resolve) => {
             setTimeout(() => {
                 resolve(data)
-            }, 1000)
+            }, 300)
         })
         commit("setMatters", result)
     },
@@ -19,7 +19,7 @@ export default {
         const result = await new Promise((resolve) => {
             setTimeout(() => {
                 resolve(ArchiveList)
-            }, 1000)
+            }, 300)
         })
         commit("setArchives", result)
     },

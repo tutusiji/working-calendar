@@ -7,19 +7,22 @@ import getters from './getters'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-    matters: {},
-    archives: [],
-    currentMatter: {
+	state: {
+		matters: {},
+		archives: [],
+		currentMatter: {
 
-    },
-    currentDay: {
+		},
+		currentDay: {
 
-    }
-  },
-  mutations: mutations,
-  actions: actions,
-  getters: getters,
-  modules: {
-  }
+		},
+		archivesItem: {
+			show:false,
+			edit:false
+		}
+	},
+	mutations: mutations,
+	actions: actions,
+	getters: getters,
+	modules: {}
 })

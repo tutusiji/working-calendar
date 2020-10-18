@@ -98,7 +98,7 @@ export default {
 	props: ["createArchiveShow"],
 	created() {},
 	mounted() {
-		console.log("-------", this.createArchiveShow);
+		// console.log("-------", this.createArchiveShow);
 		this.archiveList = ArchiveList;
 	},
 	methods: {

@@ -7,7 +7,7 @@ function findMatter(state) {
     return state.matters.find(item => `${item.month}-${item.date}` === key)
 }
 // 更新数据
-export default {
+export default {  
     setProject( state) {
         console.log(state)
     },
@@ -19,6 +19,10 @@ export default {
     },
     setCurrentDay(state, currentDay) {
         state.currentDay = currentDay
+    },
+    setArchivesItem(state, params){
+        state.archivesItem = params
+        console.log('state', params)
     },
     setArchives(state, archives) {
         state.archives = archives
