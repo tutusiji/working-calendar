@@ -9,7 +9,7 @@
     "deploy": "vue-cli-service lint"
   },
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.21.2",
     "core-js": "^3.6.4",
     "element-ui": "^2.13.1",
     "vue": "^2.6.11",
