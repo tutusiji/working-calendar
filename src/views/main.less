@@ -65,13 +65,17 @@
 		.num {
 			position: absolute;
 			left: 0;
-			font-size: 22px;
-			font-family: fantasy;
+			font-size: 24px;
+			color: rgb(0, 0, 0);
+			// font-family: fantasy;
 			width: 40px;
 			height: 40px;
 			line-height: 40px;
 			// font-weight: bold;
 			text-align: center;
+			text-shadow:0 0 2px 10px rgba(0, 0, 0, 0.22);
+			text-stroke: 1px greenyellow;
+			
 		}
 
 		.txt {
@@ -132,11 +136,14 @@
 	}
 
 	.thisMon {
-		margin: 0 20px;
+		margin: 0 10px;
 		height: 36px;
 		line-height: 36px;
-		font-size: 16px;
+		font-size: 20px;
 		white-space: nowrap;
+		span{
+			font-size: 20px;
+		}
 	}
 
 	.thisData {
@@ -321,9 +328,11 @@
 	.todayBtn {
 		display: inline-block;
 		margin-right: 14px;
+		user-select: none;
 	}
 
 	.normalBtn {
+		user-select: none;
 		background-color: transparent;
 		border: 1px solid #dadce0;
 		border-radius: 4px;
@@ -339,6 +348,10 @@
 		&:hover {
 			background-color: #f1f3f4;
 		}
+	}
+	.preMon,.nextMon{
+		font-weight: bold;
+		font-size: 16px;
 	}
 
 	.dialog-header {
@@ -364,5 +377,9 @@
 				}
 			}
 		}
+	}
+	.el-dropdown-link{
+		margin-left: 20px;
+		color: #333;
 	}
 }

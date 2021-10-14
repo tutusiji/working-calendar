@@ -10,23 +10,24 @@
 				<img
 					class="logo"
 					src="@/assets/logo.png"
-					alt="工作日历"
+					alt="归档日历"
 					aria-hidden="true"
 					style="width:40px;height:40px"
 				/>
 				<span v-text="dnow" class="num"></span>
-				<span class="txt">工作日历</span>
+				<span class="txt">归档日历</span>
 			</div>
 
 			<div class="datebar">
 				<span class="normalBtn todayBtn" @click="toToday">今天</span>
-				<div class="preMon normalBtn" @click="preMon">上个月</div>
+				<div class="preMon normalBtn" @click="preMon">＜</div>
 				<div class="thisMon">
 					<span v-text="ynow"></span>年/
 					<span v-text="mnow + 1"></span>月
 				</div>
-				<div class="nextMon normalBtn" @click="nextMon">下个月</div>
+				<div class="nextMon normalBtn" @click="nextMon">＞</div>
 			</div>
+
 			<div class="dataControl">
 				<div class="viewControl">
 					<el-radio-group v-model="radio1" size="medium">
@@ -64,18 +65,43 @@
 				<div class="normalBtn addArchive" @click="createArchive">
 					<i class="el-icon-plus"></i> 创建归档
 				</div>
-				<div class="normalBtn" @click="() => getWeekReport()">周报</div>
-				<div class="normalBtn" @click="() => getMonthReport()">
-					月报
-				</div>
-				<div class="normalBtn">年报</div>
+				<el-dropdown>
+					<div class="normalBtn">
+						数据报告<i
+							class="el-icon-arrow-down el-icon--right"
+						></i>
+					</div>
+					<el-dropdown-menu slot="dropdown">
+						<el-dropdown-item
+							><div
+								class="normalBtn"
+								@click="() => getWeekReport()"
+							>
+								周报
+							</div></el-dropdown-item
+						>
+						<el-dropdown-item
+							><div
+								class="normalBtn"
+								@click="() => getMonthReport()"
+							>
+								月报
+							</div></el-dropdown-item
+						>
+						<el-dropdown-item
+							><div class="normalBtn">年报</div></el-dropdown-item
+						>
+						<!-- <el-dropdown-item disabled>双皮奶</el-dropdown-item> -->
+						<el-dropdown-item divided>项目汇总</el-dropdown-item>
+					</el-dropdown-menu>
+				</el-dropdown>
 				<el-popover
 					placement="bottom"
 					title
 					width="200"
 					effect="light"
 					trigger="click"
-					content="点我干啥？是不是对我有意思！！！"
+					content="点我干啥？^_^！！！"
 				>
 					<div class="avater" slot="reference">
 						<img src="@/assets/hk.png" />
@@ -263,7 +289,7 @@ export default {
 					]
 				}
 			],
-			
+
 			radio1: "我的工作"
 		};
 	},
@@ -276,13 +302,14 @@ export default {
 	},
 	async mounted() {
 		// 页面加载时执行
+		this.init();
 	},
 	computed: {
 		currentMatter() {
 			return this.$store.state.currentMatter;
 		},
-		archivesItem(){
-			return this.$store.state.archivesItem
+		archivesItem() {
+			return this.$store.state.archivesItem;
 		}
 	},
 	watch: {
@@ -293,6 +320,17 @@ export default {
 		}
 	},
 	methods: {
+		init() {
+			this.newDate = new Date();
+			this.ynow = this.newDate.getFullYear();
+			// if (!other) {
+			// 	this.mnow = this.newDate.getMonth(); //月份
+			// }
+			this.mnow = this.newDate.getMonth(); //月份
+			this.dnow = this.newDate.getDate(); //今日日期
+			this.firstDay = new Date(this.ynow, this.mnow, 1);
+			this.firstnow = this.firstDay.getDay();
+		},
 		toToday() {
 			var _this = this;
 			this.mnow = this.newDate.getMonth();
@@ -300,13 +338,44 @@ export default {
 		},
 		preMon() {
 			var _this = this;
+			if( this.mnow === 0) return
 			this.mnow--;
 			this.sureDate(_this, "up");
 		},
 		nextMon() {
 			var _this = this;
+			if( this.mnow === 11) return
 			this.mnow++;
 			this.sureDate(_this, "next");
+		},
+		// 两个参数代表的含义分别是this对象以及判断当前的操作是不是在进行月份的修改
+		sureDate(_this, other) {
+			this.newDate = new Date();
+			this.ynow = this.newDate.getFullYear();
+			if (!other) {
+				this.mnow = this.newDate.getMonth(); //月份
+			}
+			this.dnow = this.newDate.getDate(); //今日日期
+			this.firstDay = new Date(this.ynow, this.mnow, 1);
+			this.firstnow = this.firstDay.getDay();
+			this.m_days = [
+				31,
+				28 + this.is_leap(this.ynow),
+				31,
+				30,
+				31,
+				30,
+				31,
+				31,
+				30,
+				31,
+				30,
+				31
+			];
+			this.tr_str = Math.ceil(
+				(_this.m_days[this.mnow] + this.firstnow) / 7
+			);
+			this.showMsg();
 		},
 		getWeekReport() {
 			this.reportPanelShow = true;
