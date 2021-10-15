@@ -38,9 +38,10 @@
 // import CreateArchive from "./CreateArchive";
 // import AddArchiveItems from "./AddArchiveItems";
 import { getDefaultMatterConfig } from "@/utils";
-import { getUserInfo } from '../service/api'
+import { getUserInfo } from "../service/api";
 import hkimg from "@/assets/hk.png";
 import "../views/main.less";
+// import { mapState } from "vuex";
 
 export default {
 	data() {
@@ -89,8 +90,7 @@ export default {
 				children: "children",
 				label: "label"
 			},
-			data2: [
-			],
+			data2: [],
 			teamList: [
 				{
 					avater: hkimg,
@@ -116,14 +116,15 @@ export default {
 			radio1: "我的工作"
 		};
 	},
+	props: ["dataMonth"],
 	components: {
 		// ReportPanel,
 		// CreateArchive,
 		// AddArchiveItems
 	},
 	async mounted() {
-		this.getUserInfo()
-		
+		this.getUserInfo();
+
 		await this.$store.dispatch("fetchMatters");
 		await this.$store.dispatch("fetchAchives");
 		//画出当前的月份的天数对应的表格
@@ -136,6 +137,7 @@ export default {
 		//进行数据的获取，显示到对应的位置
 	},
 	computed: {
+		// ...mapState(['matters'])
 		matters() {
 			console.log("matters ....", this.$store.state.matters);
 			return this.$store.state.matters;
@@ -157,13 +159,13 @@ export default {
 		}
 	},
 	methods: {
-		getUserInfo(){
-			getUserInfo()
+		getUserInfo() {
+			getUserInfo();
 			// this.$notify({
-            //     title: '成功',
-            //     message: '这是一条成功的提示消息',
-            //     // type: 'success'
-            //   });
+			//     title: '成功',
+			//     message: '这是一条成功的提示消息',
+			//     // type: 'success'
+			//   });
 		},
 		getDaysInfo() {
 			var _this = this;
@@ -178,7 +180,7 @@ export default {
 				? 1
 				: 0;
 		},
-		
+
 		// 点击面板
 		addArchiveItem(e) {
 			this.$store.commit("setArchivesItem", { show: true, edit: true });
@@ -287,6 +289,7 @@ export default {
 		},
 		//两个参数代表的含义分别是this对象以及判断当前的操作是不是在进行月份的修改
 		sureDate(_this, other) {
+			console.log(_this, other);
 			this.newDate = new Date();
 			this.ynow = this.newDate.getFullYear();
 			if (!other) {

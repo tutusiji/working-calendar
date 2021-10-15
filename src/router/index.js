@@ -9,7 +9,7 @@ const routes = [{
 		name: 'WorkSpace',
 		component: WorkSpace,
 		meta: {
-			title: '工作日历'
+			title: 'We日历'
 		}
 	},
 	{

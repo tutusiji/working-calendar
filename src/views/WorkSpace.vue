@@ -10,20 +10,19 @@
 				<img
 					class="logo"
 					src="@/assets/logo.png"
-					alt="归档日历"
+					alt="WeNotes"
 					aria-hidden="true"
 					style="width:40px;height:40px"
 				/>
 				<span v-text="dnow" class="num"></span>
-				<span class="txt">归档日历</span>
+				<span class="txt"><b>W</b><i>e</i>Notes</span>
 			</div>
 
 			<div class="datebar">
 				<span class="normalBtn todayBtn" @click="toToday">今天</span>
 				<div class="preMon normalBtn" @click="preMon">＜</div>
 				<div class="thisMon">
-					<span v-text="ynow"></span>年/
-					<span v-text="mnow + 1"></span>月
+					<span v-text="ynow"></span>年/<span v-text="mnow + 1"></span>月
 				</div>
 				<div class="nextMon normalBtn" @click="nextMon">＞</div>
 			</div>
@@ -67,7 +66,7 @@
 				</div>
 				<el-dropdown>
 					<div class="normalBtn">
-						数据报告<i
+					<b>We</b>数据<i
 							class="el-icon-arrow-down el-icon--right"
 						></i>
 					</div>
@@ -159,7 +158,7 @@
 					<div class="isRed">星期六</div>
 					<div class="isRed">星期日</div>
 				</div>
-				<Calendar></Calendar>
+				<Calendar ref="cals" :dataMonth="dataMonth"></Calendar>
 			</div>
 		</div>
 
@@ -231,6 +230,7 @@ export default {
 			sideOpen: true,
 			value1: false,
 			value2: false,
+			dataMonth:null,
 			defaultProps: {
 				children: "children",
 				label: "label"
@@ -334,19 +334,21 @@ export default {
 		toToday() {
 			var _this = this;
 			this.mnow = this.newDate.getMonth();
-			this.sureDate(_this, "now");
+			// this.sureDate(_this, "now");
+			this.$refs.cals.sureDate(_this, "now");
 		},
 		preMon() {
 			var _this = this;
 			if( this.mnow === 0) return
 			this.mnow--;
-			this.sureDate(_this, "up");
+			this.$refs.cals.sureDate(_this, "up");
 		},
 		nextMon() {
 			var _this = this;
 			if( this.mnow === 11) return
 			this.mnow++;
-			this.sureDate(_this, "next");
+			this.$refs.cals.sureDate(_this, "next");
+
 		},
 		// 两个参数代表的含义分别是this对象以及判断当前的操作是不是在进行月份的修改
 		sureDate(_this, other) {
