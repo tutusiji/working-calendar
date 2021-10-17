@@ -45,7 +45,7 @@
 							content="月视图"
 							placement="bottom"
 							effect="light"
-							>
+						>
 							<el-radio-button label="项目归档"
 								><i class="el-icon-s-grid"></i>
 								项目归档</el-radio-button
@@ -155,11 +155,12 @@
 
 			<div class="panelBox">
 				<!-- 我的工作 视图 -->
-				<CalendarMy
+				<!-- <CalendarMy
 					ref="cals"
 					v-if="viewStatus === '我的工作'"
 					:dataMonth="dataMonth"
-				></CalendarMy>
+				></CalendarMy> -->
+				<el-calendar v-model="value" v-if="viewStatus === '我的工作'" > </el-calendar>
 
 				<!-- 项目归档 视图 -->
 				<CalendarMy
@@ -212,6 +213,7 @@ import "./main.less";
 export default {
 	data() {
 		return {
+			 value: new Date(),
 			newDate: "", //当前的日期的信息
 			ynow: "", //当前的年数
 			mnow: "", //当前的月份
