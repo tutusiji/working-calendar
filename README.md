@@ -1,6 +1,6 @@
-# We日历
+# WeNotes
 
-用vue + nodejs 结合日历思路搭建的一套We日历系统。
+用vue + nodejs 结合日历思路搭建的一套WeNotes系统。
 
 站点：works.souxy.com
 
@@ -26,7 +26,7 @@ npm run lint
 
 ### 功能清单
 
-We日历可以用来管理日常工作的录入，类似mac系统自带的日历系统和google日历
+WeNotes可以用来管理日常工作的录入，类似mac系统自带的日历系统和google日历
 
 功能列表：
 

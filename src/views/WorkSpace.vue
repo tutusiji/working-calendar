@@ -22,20 +22,21 @@
 				<span class="normalBtn todayBtn" @click="toToday">今天</span>
 				<div class="preMon normalBtn" @click="preMon">＜</div>
 				<div class="thisMon">
-					<span v-text="ynow"></span>年/<span v-text="mnow + 1"></span>月
+					<span v-text="ynow"></span>年/<span v-text="mnow + 1"></span
+					>月
 				</div>
 				<div class="nextMon normalBtn" @click="nextMon">＞</div>
 			</div>
 
 			<div class="dataControl">
 				<div class="viewControl">
-					<el-radio-group v-model="radio1" size="medium">
+					<el-radio-group v-model="viewStatus" size="medium">
 						<el-tooltip
 							content="月视图"
 							placement="left"
 							effect="light"
 						>
-							<el-radio-button label="我的工作"
+							<el-radio-button label="我的工作" @click="myWorks"
 								><i class="el-icon-date"></i>
 								我的工作</el-radio-button
 							>
@@ -44,21 +45,25 @@
 							content="月视图"
 							placement="bottom"
 							effect="light"
-						>
+							>
 							<el-radio-button label="项目归档"
 								><i class="el-icon-s-grid"></i>
 								项目归档</el-radio-button
 							>
 						</el-tooltip>
+
 						<el-tooltip
 							content="周视图"
 							placement="right"
 							effect="light"
 						>
-							<el-radio-button label="团队归档">
+							<el-radio-button
+								label="团队归档"
+								@click="() => teamWorks()"
+							>
 								<i class="el-icon-notebook-2"></i> 团队归档
-							</el-radio-button>
-						</el-tooltip>
+							</el-radio-button></el-tooltip
+						>
 					</el-radio-group>
 				</div>
 				<div class="normalBtn addArchive" @click="createArchive">
@@ -66,7 +71,7 @@
 				</div>
 				<el-dropdown>
 					<div class="normalBtn">
-					<b>We</b>数据<i
+						<b>We</b>数据<i
 							class="el-icon-arrow-down el-icon--right"
 						></i>
 					</div>
@@ -147,18 +152,28 @@
 					</div>
 				</div>
 			</div>
-			<TeamList />
-			<div class="panel">
-				<div class="panelTitle">
-					<div>星期一</div>
-					<div>星期二</div>
-					<div>星期三</div>
-					<div>星期四</div>
-					<div>星期五</div>
-					<div class="isRed">星期六</div>
-					<div class="isRed">星期日</div>
-				</div>
-				<Calendar ref="cals" :dataMonth="dataMonth"></Calendar>
+
+			<div class="panelBox">
+				<!-- 我的工作 视图 -->
+				<CalendarMy
+					ref="cals"
+					v-if="viewStatus === '我的工作'"
+					:dataMonth="dataMonth"
+				></CalendarMy>
+
+				<!-- 项目归档 视图 -->
+				<CalendarMy
+					ref="cals"
+					v-if="viewStatus === '项目归档'"
+					:dataMonth="dataMonth"
+				></CalendarMy>
+
+				<!-- 团队归档 视图 -->
+				<CalendarTeam
+					ref="cals"
+					v-if="viewStatus === '团队归档'"
+					:dataMonth="dataMonth"
+				></CalendarTeam>
 			</div>
 		</div>
 
@@ -185,11 +200,12 @@
 
 <script>
 // import JsonHtml from "../tempdata/data.json";
-import Calendar from "../components/Calendar";
+import CalendarMy from "../components/CalendarMy";
+import CalendarTeam from "../components/CalendarTeam";
 import ReportPanel from "../components/ReportPanel";
 import CreateArchive from "../components/CreateArchive";
 import AddArchiveItems from "../components/AddArchiveItems";
-import TeamList from "../components/TeamList";
+// import TeamList from "../components/TeamList";
 // import { getDefaultMatterConfig } from "../utils";
 import "./main.less";
 
@@ -230,7 +246,7 @@ export default {
 			sideOpen: true,
 			value1: false,
 			value2: false,
-			dataMonth:null,
+			dataMonth: null,
 			defaultProps: {
 				children: "children",
 				label: "label"
@@ -289,16 +305,16 @@ export default {
 					]
 				}
 			],
-
-			radio1: "我的工作"
+			viewStatus: "我的工作"
 		};
 	},
 	components: {
-		Calendar,
+		CalendarMy,
+		CalendarTeam,
 		ReportPanel,
 		CreateArchive,
-		AddArchiveItems,
-		TeamList
+		AddArchiveItems
+		// TeamList
 	},
 	async mounted() {
 		// 页面加载时执行
@@ -339,45 +355,15 @@ export default {
 		},
 		preMon() {
 			var _this = this;
-			if( this.mnow === 0) return
+			if (this.mnow === 0) return;
 			this.mnow--;
 			this.$refs.cals.sureDate(_this, "up");
 		},
 		nextMon() {
 			var _this = this;
-			if( this.mnow === 11) return
+			if (this.mnow === 11) return;
 			this.mnow++;
 			this.$refs.cals.sureDate(_this, "next");
-
-		},
-		// 两个参数代表的含义分别是this对象以及判断当前的操作是不是在进行月份的修改
-		sureDate(_this, other) {
-			this.newDate = new Date();
-			this.ynow = this.newDate.getFullYear();
-			if (!other) {
-				this.mnow = this.newDate.getMonth(); //月份
-			}
-			this.dnow = this.newDate.getDate(); //今日日期
-			this.firstDay = new Date(this.ynow, this.mnow, 1);
-			this.firstnow = this.firstDay.getDay();
-			this.m_days = [
-				31,
-				28 + this.is_leap(this.ynow),
-				31,
-				30,
-				31,
-				30,
-				31,
-				31,
-				30,
-				31,
-				30,
-				31
-			];
-			this.tr_str = Math.ceil(
-				(_this.m_days[this.mnow] + this.firstnow) / 7
-			);
-			this.showMsg();
 		},
 		getWeekReport() {
 			this.reportPanelShow = true;
@@ -400,6 +386,13 @@ export default {
 			} else {
 				this.sideOpen = true;
 			}
+		},
+		myWorks() {
+			this.myview === true;
+		},
+		teamWorks() {
+			console.log(1);
+			this.myview === false;
 		}
 	}
 };
